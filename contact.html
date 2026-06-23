@@ -263,8 +263,52 @@
       else { el.style.borderColor = '#ddd'; }
     });
     if (!valid) return;
-    document.getElementById('contact-form').style.display = 'none';
-    document.getElementById('success-msg').style.display = 'block';
+
+    const prenom = document.getElementById('prenom').value.trim();
+    const nom = document.getElementById('nom').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const entreprise = document.getElementById('entreprise').value.trim();
+    const sujet = document.getElementById('sujet').value;
+    const message = document.getElementById('message').value.trim();
+    const budgetEl = document.querySelector('input[name="budget"]:checked');
+    const budget = budgetEl ? budgetEl.parentElement.querySelector('label').textContent.trim() : 'Non précisé';
+
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours…';
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: '45070bc7-5415-4263-9c16-0b2d7cc678de',
+        subject: 'Nouvelle demande depuis le site ATG Conseil (Contact)',
+        from_name: prenom + ' ' + nom,
+        prenom: prenom,
+        nom: nom,
+        email: email,
+        entreprise: entreprise || 'Non précisé',
+        sujet: sujet || 'Non précisé',
+        budget: budget,
+        message: message
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('contact-form').style.display = 'none';
+          document.getElementById('success-msg').style.display = 'block';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Envoyer le message →';
+          alert("Une erreur s'est produite. Merci de réessayer ou de nous contacter par téléphone.");
+        }
+      })
+      .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer le message →';
+        alert("Une erreur s'est produite. Merci de réessayer ou de nous contacter par téléphone.");
+      });
   }
 </script>
 
